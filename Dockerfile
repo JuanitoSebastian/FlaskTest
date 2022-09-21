@@ -4,7 +4,7 @@ FROM python:3.10-slim-bullseye
 RUN pip install -U pip \
     && apt-get update \
     && apt install -y curl netcat \
-    && curl -sSL https://install.python-poetry.org | python3 -
+    && curl -sSL https://install.python-poetry.org/ | python3 -
 # Set PATH enviromental variable to enable bash commands as e.g. '$ poetry version'
 ENV PATH="${PATH}:/root/.local/bin"
 # Application work directory inside container as per convention:
@@ -13,12 +13,11 @@ WORKDIR /usr/src/app
 COPY poetry* .
 COPY pyproject.toml .
 # Check poetry installation and that the PATH enviromental variable works properly:
-RUN poetry version
-# Install project dependencies utilising poetry as usual. Changes above this line result in a more expensive '$ docker build' operation.
+RUN poetry config virtualenvs.create false
 RUN poetry install
 # Now we can copy the repository files to the container.
 COPY . .
 # Now, set database env variables, expose the required ports and so forth!
 EXPOSE 5000
 # Finally, this CMD starts up the application
-CMD [ "poetry", "run", "invoke", "start"]
+CMD [ "python3", "src/app.py"]
